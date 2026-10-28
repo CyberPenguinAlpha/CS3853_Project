@@ -121,7 +121,7 @@ def interactive_menu():
         print("=" * 60)
         print("1: Guided Custom Run")
         print("2: Run Section 4.2 Benchmark Example")
-        print("3: Generate 3 Milestone Deliverable Runs (Team_12_Sim_n_M#Z.txt)")
+        #print("3: Generate 3 Milestone Deliverable Runs (Team_12_Sim_n_M#Z.txt)")
         #print("4: Run Experiment Matrix Sweep")
         print("0: Exit")
 
