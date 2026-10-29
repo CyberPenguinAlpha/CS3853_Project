@@ -26,13 +26,18 @@ static inline void run_milestone_1(const SimConfig *config) {
     double impl_mem_size_kb = (double)impl_mem_size_bytes / 1024.0;
     double cost = impl_mem_size_kb * 0.07;
 
+    // Calculating total number of pages in physical memory using 4 KB pages 
     long long phys_pages = phys_mem_bytes / 4096LL;
+
+    // Calculating number of physical pages to be used by the operating system
     double system_fraction = config->os_mem_percent / 100.0;
     long long system_pages = (long long)llround((double)phys_pages * system_fraction);
 
+    // Calculating number of bits needed for each page table entry 
     int phys_page_bits = (int)round(log2((double)phys_pages));
     int pte_size_bits = 1 + phys_page_bits;
 
+    // Calculating total memory needed for all of the page tables
     long long page_table_ram_bytes = (524288LL * config->trace_file_count * pte_size_bits) / 8LL;
 
     const char *rep_policy = (strcasecmp(config->replacement_policy, "RR") == 0) ? "Round Robin" : "Random";
