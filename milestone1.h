@@ -6,19 +6,31 @@
 #include <strings.h>
 #include "config.h"
 
+// AI Usage:
+// ChatGPT was used to help review calculations and improve code comments.
+// The calculations were also tested using different configurations.
+
 static inline void run_milestone_1(const SimConfig *config) {
+    
+    // Converting cache size from KB to bytes
     long long cache_size_bytes = (long long)config->cache_size_kb * 1024LL;
+    
+    // Calculating total blocks and rows in the cache
     long long total_blocks = cache_size_bytes / config->block_size_bytes;
     long long total_rows = total_blocks / config->associativity;
 
+    // Calculating index and offset sizes 
     int index_size = (int)round(log2((double)total_rows));
     int offset_size = (int)round(log2((double)config->block_size_bytes));
 
+    // Converting physical memory from MB to bytes
     long long phys_mem_bytes = (long long)config->phys_memory_mb * 1024LL * 1024LL;
     int phys_mem_bits = (int)round(log2((double)phys_mem_bytes));
 
+    // Finding Tag size 
     int tag_size = phys_mem_bits - index_size - offset_size;
 
+    // Calulates number of extra memory needed for each block
     int overhead_bits_per_block = tag_size + 1;
     long long overhead_size_bytes = (total_blocks * overhead_bits_per_block) / 8LL;
 
@@ -42,6 +54,7 @@ static inline void run_milestone_1(const SimConfig *config) {
 
     const char *rep_policy = (strcasecmp(config->replacement_policy, "RR") == 0) ? "Round Robin" : "Random";
 
+    // Basic Formatting
     printf("Cache Simulator - CS 3853 - Team #%s\n\n", TEAM_NUMBER);
     printf("Trace File(s):\n");
     for (int i = 0; i < config->trace_file_count; i++) {
