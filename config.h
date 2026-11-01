@@ -13,7 +13,7 @@
 // Stores input vales the user enters for the simulator
 typedef struct {
     int cache_size_kb;                    // -s: 8 to 8192 KB
-    int block_size_bytes;                 // -b: 8, 16, 32, 64 bytes
+    int block_size_bytes;                 // -b: 4, 8, 16, 32, 64 bytes
     int associativity;                    // -a: 1, 2, 4, 8, 16
     char replacement_policy[8];           // -r: RR or RND
     int phys_memory_mb;                   // -p: 128 to 4096 MB
@@ -81,9 +81,11 @@ static inline bool parse_arguments(int argc, char *argv[], SimConfig *config) {
         return false;
     }
     
-    // Block size must be 8, 16, 32, or 64 bytes
-    if (config->block_size_bytes < 8 || config->block_size_bytes > 64 || !is_power_of_two(config->block_size_bytes)) {
-        fprintf(stderr, "Error: Block size (-b) must be 8, 16, 32, or 64 bytes.\n");
+    // Block size must be 4, 8, 16, 32, or 64 bytes
+    if (config->block_size_bytes < 4 || config->block_size_bytes > 64 ||
+    !is_power_of_two(config->block_size_bytes)) {
+        fprintf(stderr,
+                "Error: Block size (-b) must be 4, 8, 16, 32, or 64 bytes.\n");
         return false;
     }
     if (config->associativity < 1 || config->associativity > 16 || !is_power_of_two(config->associativity)) {
