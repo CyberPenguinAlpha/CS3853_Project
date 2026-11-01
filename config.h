@@ -8,12 +8,11 @@
 #include <unistd.h>
 
 #define MAX_TRACE_FILES 3
-#define TEAM_NUMBER "12"
+#define TEAM_NUMBER "12" // Team 12 per your setup
 
-// Stores input vales the user enters for the simulator
 typedef struct {
     int cache_size_kb;                    // -s: 8 to 8192 KB
-    int block_size_bytes;                 // -b: 8, 16, 32, 64 bytes
+    int block_size_bytes;                 // -b: 4, 8, 16, 32, 64 bytes
     int associativity;                    // -a: 1, 2, 4, 8, 16
     char replacement_policy[8];           // -r: RR or RND
     int phys_memory_mb;                   // -p: 128 to 4096 MB
@@ -24,7 +23,6 @@ typedef struct {
     int max_milestone;                    // -m: 1, 2, or 3
 } SimConfig;
 
-// Displays the command format in case the user inputs something incorrectly 
 static inline void print_usage(const char *prog_name) {
     printf("Usage: %s -s <cache_size_kb> -b <block_size> -a <associativity> "
            "-r <rr|rnd> -p <phys_mem_mb> -u <os_percent> -n <time_slice> "
@@ -35,7 +33,6 @@ static inline bool is_power_of_two(int x) {
     return x > 0 && (x & (x - 1)) == 0;
 }
 
-// Reads command-line arguments entered by the user
 static inline bool parse_arguments(int argc, char *argv[], SimConfig *config) {
     int opt;
     memset(config, 0, sizeof(SimConfig));
@@ -80,10 +77,9 @@ static inline bool parse_arguments(int argc, char *argv[], SimConfig *config) {
         fprintf(stderr, "Error: Cache size (-s) must be a power of 2 between 8 and 8192 KB.\n");
         return false;
     }
-    
-    // Block size must be 8, 16, 32, or 64 bytes
-    if (config->block_size_bytes < 8 || config->block_size_bytes > 64 || !is_power_of_two(config->block_size_bytes)) {
-        fprintf(stderr, "Error: Block size (-b) must be 8, 16, 32, or 64 bytes.\n");
+    // Updated block size validation to permit 4 through 64 (all powers of 2)
+    if (config->block_size_bytes < 4 || config->block_size_bytes > 64 || !is_power_of_two(config->block_size_bytes)) {
+        fprintf(stderr, "Error: Block size (-b) must be 4, 8, 16, 32, or 64 bytes.\n");
         return false;
     }
     if (config->associativity < 1 || config->associativity > 16 || !is_power_of_two(config->associativity)) {
@@ -103,11 +99,7 @@ static inline bool parse_arguments(int argc, char *argv[], SimConfig *config) {
         fprintf(stderr, "Error: OS memory percent (-u) must be between 0 and 100.\n");
         return false;
     }
-    // Time slice must be positive, or -1 for MAX
-    if (config->time_slice != -1 && config->time_slice < 1) {
-        fprintf(stderr, "Error: Time slice (-n) must be positive or -1 for MAX.\n");
-        return false;
-    }
+
     return true;
 }
 
