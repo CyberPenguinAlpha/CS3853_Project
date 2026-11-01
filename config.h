@@ -4,8 +4,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 #include <stdbool.h>
 #include <unistd.h>
+#include <getopt.h>
 
 #define MAX_TRACE_FILES 3
 #define TEAM_NUMBER "12" // Team 12 per your setup
