@@ -8,6 +8,7 @@
 
 // AI Usage:
 // ChatGPT was used to help review calculations and improve code comments.
+// AI assistance was also used during the initial development of the simulator. 
 
 static inline void run_milestone_1(const SimConfig *config) {
 
