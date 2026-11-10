@@ -7,7 +7,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-typedef struct {
+typedef struct { //looking back i think these can be abstracted out some, i didnt attempt a more dynamic solution
     int length;          // Decimal instruction length from EIP (XX)
     uint32_t eip;        // Instruction fetch virtual address
     uint32_t dstM;       // Destination write virtual address
@@ -47,8 +47,6 @@ static inline bool read_next_instruction(FILE *fp, TraceInstruction *instr) {
 
         return true;
     }
-
     return false;
 }
-
 #endif

@@ -11,7 +11,7 @@
 #include "file_search.h"
 
 #define PAGE_TABLE_SIZE 524288 // Fixed 512K entries for 31-bit user virtual space
-#define PAGE_SIZE_BYTES 4096   // 4 KB pages
+#define PAGE_SIZE_BYTES 4096   // 4K pages
 
 typedef struct {
     bool valid;          // Currently mapped to a physical page
@@ -46,7 +46,7 @@ static inline void vm_access_address(
     long long *next_victim_frame,
     VMStats *stats
 ) {
-    uint32_t vpn = (vaddr & 0x7FFFFFFFU) >> 12;
+    uint32_t vpn = (vaddr & 0x7FFFFFFFU) >> 12; //mask of all but lower 31, then shift to drop the offset, left with index
     stats->virtual_pages_mapped++;
 
     PageTableEntry *pte = &page_tables[proc_id][vpn];
@@ -62,7 +62,7 @@ static inline void vm_access_address(
         stats->used_pte_count[proc_id]++;
     }
 
-    // 2. Allocate from Free Physical Pages if available
+    //Allocate from Free Physical Pages if available
     if (*free_page_count > 0) {
         for (long long p = 0; p < user_pages; p++) {
             if (!phys_frames[p].in_use) {
@@ -80,7 +80,7 @@ static inline void vm_access_address(
         }
     }
 
-    // 3. Page Fault: No free physical page available; snag one in use
+    //Page Fault: No free physical page available; snag one in use
     stats->total_page_faults++;
     long long victim = *next_victim_frame;
     *next_victim_frame = (*next_victim_frame + 1) % user_pages;
@@ -120,7 +120,7 @@ static inline void vm_free_process_pages(
         }
     }
 }
-
+//These string were formatted using Gemini Argon, because I am terrible at formatting strings
 static inline void print_milestone_2(const SimConfig *config, const VMStats *stats) {
     printf("\n***** VIRTUAL MEMORY SIMULATION RESULTS *****\n\n");
     printf("%-32s%lld\n", "Physical Pages Used By SYSTEM:", stats->system_pages);

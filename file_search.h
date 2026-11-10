@@ -8,6 +8,7 @@
 #include <sys/stat.h>
 #include <dirent.h>
 
+//This is mostly some old reused code from a previous assignment ina  different course, and can likely be simplified down
 // Recursively searches subdirectories for a given filename without truncation warnings
 static inline bool find_file_recursive(const char *base_path, const char *filename, char *found_path, size_t max_len) {
     char path[4096]; // Expanded buffer to prevent truncation warnings
@@ -24,7 +25,6 @@ static inline bool find_file_recursive(const char *base_path, const char *filena
             if (written < 0 || (size_t)written >= sizeof(path)) {
                 continue; // Skip if path formatting fails or overflows
             }
-
             struct stat statbuf;
             if (stat(path, &statbuf) == 0) {
                 if (S_ISDIR(statbuf.st_mode)) {
@@ -45,5 +45,4 @@ static inline bool find_file_recursive(const char *base_path, const char *filena
     closedir(dir);
     return false;
 }
-
 #endif
