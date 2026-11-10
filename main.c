@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include "config.h"
 #include "milestone1.h"
+#include "milestone2.h"
 
 int main(int argc, char *argv[]) {
     SimConfig config;
@@ -10,6 +11,10 @@ int main(int argc, char *argv[]) {
     }
 
     run_milestone_1(&config);
+
+	if (!run_milestone_2(&config)) {
+        return EXIT_FAILURE;
+    }
 
     return EXIT_SUCCESS;
 }
