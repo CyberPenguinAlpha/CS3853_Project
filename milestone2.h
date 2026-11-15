@@ -52,11 +52,13 @@ static inline void vm_access_address(
     PageTableEntry *pte = &page_tables[proc_id][vpn];
 
     // 1. Page Table Hit
+    // If the page is already in memory, no new mapping is needed
     if (pte->valid) {
         stats->page_table_hits++;
         return;
     }
 
+    // Counting each unique virtual page only once 
     if (!pte->ever_used) {
         pte->ever_used = true;
         stats->used_pte_count[proc_id]++;
@@ -82,9 +84,12 @@ static inline void vm_access_address(
 
     //Page Fault: No free physical page available; snag one in use
     stats->total_page_faults++;
+
+    // Selecting next physical frame to be replaced
     long long victim = *next_victim_frame;
     *next_victim_frame = (*next_victim_frame + 1) % user_pages;
 
+    //  Clear the old page mapping before reusing the physical frame
     int old_proc = phys_frames[victim].owner_proc;
     uint32_t old_vpn = phys_frames[victim].owner_vpn;
     if (old_proc >= 0 && old_proc < MAX_TRACE_FILES) {
@@ -92,6 +97,7 @@ static inline void vm_access_address(
         page_tables[old_proc][old_vpn].phys_page = -1;
     }
 
+    // Assigning the reused frame to the current process
     phys_frames[victim].in_use = true;
     phys_frames[victim].owner_proc = proc_id;
     phys_frames[victim].owner_vpn = vpn;
@@ -100,6 +106,7 @@ static inline void vm_access_address(
     pte->phys_page = (int)victim;
 }
 
+// Free physical pages when a process finishes.
 static inline void vm_free_process_pages(
     int proc_id,
     PageTableEntry page_tables[MAX_TRACE_FILES][PAGE_TABLE_SIZE],
@@ -135,6 +142,8 @@ static inline void print_milestone_2(const SimConfig *config, const VMStats *sta
     printf("------------------------------\n");
     for (int i = 0; i < config->trace_file_count; i++) {
         double pct_used = ((double)stats->used_pte_count[i] / (double)PAGE_TABLE_SIZE) * 100.0;
+        
+        // Calculate the memory occupied by unused page table entries
         long long wasted_bytes = ((PAGE_TABLE_SIZE - stats->used_pte_count[i]) * (long long)stats->pte_size_bits) / 8LL;
 
         printf("[%d] %s:\n", i, config->trace_files[i]);
@@ -151,8 +160,15 @@ static inline bool run_milestone_2(const SimConfig *config) {
     long long total_phys_pages = phys_mem_bytes / PAGE_SIZE_BYTES;
     double system_fraction = config->os_mem_percent / 100.0;
 
+    // Reserve system memory and make the remaining pages available to users
     stats.system_pages = (long long)llround((double)total_phys_pages * system_fraction);
     stats.user_pages = total_phys_pages - stats.system_pages;
+
+    // Prevent division by zero when all physical memory is reserved by the system.
+    if (stats.user_pages == 0) {
+        fprintf(stderr, "\nError - ALL pages tables have zero physical pages.\n");
+        return false;
+    }
 
     int phys_page_bits = (int)round(log2((double)total_phys_pages));
     stats.pte_size_bits = 1 + phys_page_bits;
@@ -207,6 +223,7 @@ static inline bool run_milestone_2(const SimConfig *config) {
     long long next_victim_frame = 0;
     TraceInstruction instr;
 
+    // Process each active trace for its time slice before moving to the next.
     while (active_count > 0) {
         for (int i = 0; i < config->trace_file_count; i++) {
             if (!active[i]) continue;
